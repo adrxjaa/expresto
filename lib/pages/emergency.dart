@@ -109,7 +109,10 @@ class _EmergencyPageState extends State<EmergencyPage>
         titleSpacing: 18,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
         ),
         title: const Text(
           'Active Call',

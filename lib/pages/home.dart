@@ -5,7 +5,9 @@ import 'package:expresto/pages/profile.dart';
 import 'package:expresto/pages/settings.dart';
 import 'package:expresto/pages/emergency.dart';
 import 'package:expresto/pages/bystander.dart';
+import 'package:expresto/pages/call_history.dart';
 import 'package:expresto/pages/practice.dart';
+import 'package:expresto/pages/live_call.dart';
 import 'package:expresto/widgets/home/feature_tile.dart';
 import 'package:expresto/widgets/home/stat_row.dart';
 import 'package:flutter/material.dart';
@@ -43,19 +45,25 @@ class _HomePageState extends State<HomePage>
           context,
           MaterialPageRoute(builder: (context) => const BystanderPage()),
         );
+        break;
       case 'practice':
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const PracticePage()),
         );
+        break;
       case 'live_call':
-      case 'history':
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$routeKey screen comes next.'),
-            behavior: SnackBarBehavior.floating,
-          ),
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LiveCallPage()),
         );
+        break;
+      case 'history':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CallHistoryPage()),
+        );
+        break;
     }
   }
 
