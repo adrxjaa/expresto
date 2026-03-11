@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class EmergencySessionData {
   const EmergencySessionData({
     required this.headerTag,
@@ -33,6 +35,6 @@ class EmergencySessionData {
 class EmergencyActionItem {
   const EmergencyActionItem({required this.icon, required this.label});
 
-  final String icon;
+  final IconData icon;
   final String label;
 }

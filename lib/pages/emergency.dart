@@ -2,6 +2,8 @@ import 'package:expresto/core/theme/app_colors.dart';
 import 'package:expresto/data/mock/emergency_mock_data.dart';
 import 'package:expresto/models/emergency_session_data.dart';
 import 'package:expresto/pages/bystander.dart';
+import 'package:expresto/pages/silent_emergency.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 class EmergencyPage extends StatefulWidget {
@@ -14,6 +16,9 @@ class EmergencyPage extends StatefulWidget {
 class _EmergencyPageState extends State<EmergencyPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _cameraGlowController;
+  CameraController? _cameraController;
+  Future<void>? _cameraInitialization;
+  String? _cameraError;
 
   @override
   void initState() {
@@ -22,10 +27,69 @@ class _EmergencyPageState extends State<EmergencyPage>
       vsync: this,
       duration: const Duration(milliseconds: 1700),
     )..repeat(reverse: true);
+    _initializeCamera();
+  }
+
+  Future<void> _initializeCamera() async {
+    try {
+      await _cameraController?.dispose();
+
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _cameraError = 'No camera available on this device.';
+        });
+        return;
+      }
+
+      final selectedCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front,
+        orElse: () => cameras.first,
+      );
+
+      final controller = CameraController(
+        selectedCamera,
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
+
+      final initialization = controller.initialize();
+
+      setState(() {
+        _cameraController = controller;
+        _cameraInitialization = initialization;
+        _cameraError = null;
+      });
+
+      await initialization;
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    } on CameraException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _cameraError =
+            '${error.code}: ${error.description ?? 'Unable to access the camera.'}';
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _cameraError = 'Unable to start the live camera preview.\n$error';
+      });
+    }
   }
 
   @override
   void dispose() {
+    _cameraController?.dispose();
     _cameraGlowController.dispose();
     super.dispose();
   }
@@ -36,99 +100,96 @@ class _EmergencyPageState extends State<EmergencyPage>
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF090B10), Color(0xFF040507)],
-            ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 44,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleSpacing: 18,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        ),
+        title: const Text(
+          'Active Call',
+          style: TextStyle(
+            color: AppColors.emergency,
+            fontSize: 28,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1,
           ),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 18),
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.shell,
-                  borderRadius: BorderRadius.circular(34),
-                  border: Border.all(color: AppColors.shellBorder),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x44000000),
-                      blurRadius: 28,
-                      offset: Offset(0, 10),
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF090B10), Color(0xFF040507)],
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final cameraHeight = constraints.maxHeight * 0.53;
+
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: cameraHeight,
+                      child: _CameraPanel(
+                        animation: _cameraGlowController,
+                        data: data,
+                        cameraController: _cameraController,
+                        cameraInitialization: _cameraInitialization,
+                        cameraError: _cameraError,
+                        onEndCall: () => Navigator.pop(context),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            _UrgencyPanel(data: data),
+                            const SizedBox(height: 12),
+                            _OperatorPanel(data: data),
+                            const SizedBox(height: 12),
+                            _ActionsPanel(data: data),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _BottomActionButton(
+                                    icon: Icons.groups_rounded,
+                                    label: 'Bystander',
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const BystanderPage(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _EmergencyHeader(data: data),
-                      const SizedBox(height: 18),
-                      Text(
-                        data.callState,
-                        style: const TextStyle(
-                          color: AppColors.emergency,
-                          fontSize: 29,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _CameraPanel(
-                        animation: _cameraGlowController,
-                        data: data,
-                      ),
-                      const SizedBox(height: 12),
-                      _UrgencyPanel(data: data),
-                      const SizedBox(height: 10),
-                      _OperatorPanel(data: data),
-                      const SizedBox(height: 10),
-                      _ActionsPanel(data: data),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _BottomActionButton(
-                              icon: '🚫',
-                              label: 'Silent',
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Silent mode screen comes next.',
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: _BottomActionButton(
-                              icon: '👥',
-                              label: 'Bystander',
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const BystanderPage(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -136,50 +197,22 @@ class _EmergencyPageState extends State<EmergencyPage>
   }
 }
 
-class _EmergencyHeader extends StatelessWidget {
-  const _EmergencyHeader({required this.data});
-
-  final EmergencySessionData data;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Row(
-            children: [
-              const Text('🚨', style: TextStyle(fontSize: 14)),
-              const SizedBox(width: 6),
-              Text(
-                data.headerTag,
-                style: const TextStyle(
-                  color: AppColors.emergency,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.8,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Text(
-          data.timer,
-          style: const TextStyle(
-            color: AppColors.emergency,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _CameraPanel extends StatelessWidget {
-  const _CameraPanel({required this.animation, required this.data});
+  const _CameraPanel({
+    required this.animation,
+    required this.data,
+    required this.cameraController,
+    required this.cameraInitialization,
+    required this.cameraError,
+    required this.onEndCall,
+  });
 
   final Animation<double> animation;
   final EmergencySessionData data;
+  final CameraController? cameraController;
+  final Future<void>? cameraInitialization;
+  final String? cameraError;
+  final VoidCallback onEndCall;
 
   @override
   Widget build(BuildContext context) {
@@ -192,9 +225,7 @@ class _CameraPanel extends StatelessWidget {
             AppColors.success;
 
         return Container(
-          height: 270,
           width: double.infinity,
-          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
             border: Border.all(color: const Color(0xFF0C7948)),
@@ -216,7 +247,30 @@ class _CameraPanel extends StatelessWidget {
         );
       },
       child: Stack(
+        fit: StackFit.expand,
         children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(21),
+            child: _CameraFeed(
+              controller: cameraController,
+              initialization: cameraInitialization,
+              error: cameraError,
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(21),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.18),
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.22),
+                ],
+              ),
+            ),
+          ),
           Align(
             alignment: Alignment.topLeft,
             child: Container(
@@ -228,14 +282,12 @@ class _CameraPanel extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('🤟', style: TextStyle(fontSize: 16)),
-                  const SizedBox(width: 6),
                   Text(
-                    data.liveIndicator,
+                    data.cameraHint,
                     style: const TextStyle(
                       color: Color(0xFF15DF6D),
-                      fontSize: 13,
-                      letterSpacing: 1,
+                      fontSize: 14,
+                      letterSpacing: 0.3,
                     ),
                   ),
                 ],
@@ -255,20 +307,71 @@ class _CameraPanel extends StatelessWidget {
           const Align(
             alignment: Alignment.centerRight,
             child: Padding(
-              padding: EdgeInsets.only(top: 74),
+              padding: EdgeInsets.only(right: 12),
               child: _AvatarPreview(),
             ),
           ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 22),
-              child: Text(
-                data.cameraHint,
-                style: const TextStyle(
-                  color: Color(0xFF1CFF8A),
-                  fontSize: 18,
-                  letterSpacing: 0.4,
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SilentEmergencyPage(),
+                          ),
+                        );
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF202532),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(132, 54),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      child: const Text(
+                        'Silent',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    FilledButton(
+                      onPressed: onEndCall,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.emergency,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(148, 56),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 28,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      child: const Text(
+                        'End Call',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -285,11 +388,11 @@ class _AvatarPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 80,
-      height: 80,
+      width: 84,
+      height: 84,
       decoration: BoxDecoration(
-        color: const Color(0xFF1D1D28),
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFF1D1D28).withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFF36354C), width: 2),
         boxShadow: const [
           BoxShadow(
@@ -299,7 +402,97 @@ class _AvatarPreview extends StatelessWidget {
           ),
         ],
       ),
-      child: const Center(child: Text('🎭', style: TextStyle(fontSize: 30))),
+      child: const Center(
+        child: Icon(
+          Icons.interpreter_mode_rounded,
+          color: AppColors.textPrimary,
+          size: 34,
+        ),
+      ),
+    );
+  }
+}
+
+class _CameraFeed extends StatelessWidget {
+  const _CameraFeed({
+    required this.controller,
+    required this.initialization,
+    required this.error,
+  });
+
+  final CameraController? controller;
+  final Future<void>? initialization;
+  final String? error;
+
+  @override
+  Widget build(BuildContext context) {
+    if (error != null) {
+      return _CameraStatus(message: error!);
+    }
+
+    if (controller == null || initialization == null) {
+      return const _CameraStatus(message: 'Starting camera...');
+    }
+
+    return FutureBuilder<void>(
+      future: initialization,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const _CameraStatus(message: 'Starting camera...');
+        }
+
+        if (snapshot.hasError) {
+          return _CameraStatus(
+            message: 'Camera preview unavailable.\n${snapshot.error}',
+          );
+        }
+
+        if (!controller!.value.isInitialized) {
+          return const _CameraStatus(message: 'Camera preview unavailable.');
+        }
+
+        return FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: controller!.value.previewSize!.height,
+            height: controller!.value.previewSize!.width,
+            child: CameraPreview(controller!),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _CameraStatus extends StatelessWidget {
+  const _CameraStatus({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFF071114),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.4,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1CFF8A)),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -409,6 +602,7 @@ class _OperatorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -424,7 +618,11 @@ class _OperatorPanel extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Text('🗣️', style: TextStyle(fontSize: 14)),
+              Icon(
+                Icons.support_agent_rounded,
+                color: Color(0xFF1CFF8A),
+                size: 16,
+              ),
               SizedBox(width: 6),
               Text(
                 'OPERATOR RESPONSE',
@@ -437,26 +635,51 @@ class _OperatorPanel extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            '🚑 ${data.operatorTitle}',
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              height: 1.0,
-              letterSpacing: -0.8,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 2, right: 8),
+                child: Icon(
+                  Icons.emergency_rounded,
+                  color: AppColors.textPrimary,
+                  size: 26,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  data.operatorTitle,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                    height: 1.0,
+                    letterSpacing: -0.8,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
-          Text(
-            '⏱ ${data.operatorEta}',
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              height: 1,
-              letterSpacing: -0.6,
-            ),
+          Row(
+            children: [
+              const Icon(
+                Icons.timer_outlined,
+                color: AppColors.textPrimary,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                data.operatorEta,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  height: 1,
+                  letterSpacing: -0.6,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -475,13 +698,23 @@ class _ActionsPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '✅ ${data.actionsTitle}',
-            style: const TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 12,
-              letterSpacing: 2.2,
-            ),
+          Row(
+            children: [
+              const Icon(
+                Icons.task_alt_rounded,
+                color: AppColors.success,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                data.actionsTitle,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                  letterSpacing: 2.2,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
           ...List.generate(data.actions.length, (index) {
@@ -499,9 +732,10 @@ class _ActionsPanel extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: 34,
-                    child: Text(
+                    child: Icon(
                       action.icon,
-                      style: const TextStyle(fontSize: 20),
+                      color: const Color(0xFFC9C9DA),
+                      size: 20,
                     ),
                   ),
                   Expanded(
@@ -530,7 +764,7 @@ class _BottomActionButton extends StatelessWidget {
     required this.onTap,
   });
 
-  final String icon;
+  final IconData icon;
   final String label;
   final VoidCallback onTap;
 
@@ -553,7 +787,7 @@ class _BottomActionButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(icon, style: const TextStyle(fontSize: 16)),
+              Icon(icon, color: AppColors.textPrimary, size: 18),
               const SizedBox(width: 8),
               Text(
                 label,
@@ -580,6 +814,7 @@ class _GlassPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       decoration: BoxDecoration(
         color: AppColors.panelSoft,

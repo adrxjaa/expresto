@@ -70,10 +70,10 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
+            padding: const EdgeInsets.fromLTRB(18, 14, 18, 24),
             children: [
               _TopBar(data: data),
-              const SizedBox(height: 10),
+              const SizedBox(height: 18),
               Text(
                 'Hi, ${data.userName}',
                 style: const TextStyle(
@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage>
                   height: 0.95,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 22),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage>
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 18),
               AnimatedBuilder(
                 animation: _glowController,
                 builder: (context, child) {
@@ -237,15 +237,15 @@ class _HomePageState extends State<HomePage>
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 18),
               GridView.builder(
                 itemCount: data.quickActions.length,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
                   childAspectRatio: 1.18,
                 ),
                 itemBuilder: (context, index) {
@@ -256,7 +256,7 @@ class _HomePageState extends State<HomePage>
                   );
                 },
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 22),
               ...List.generate(
                 data.stats.length,
                 (index) => StatRow(
@@ -411,7 +411,11 @@ class _EmergencyButtonState extends State<_EmergencyButton> {
           ),
           child: Column(
             children: [
-              const Text('💥', style: TextStyle(fontSize: 20)),
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
               const SizedBox(height: 6),
               Text(
                 widget.label,
