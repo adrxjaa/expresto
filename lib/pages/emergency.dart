@@ -3,6 +3,7 @@ import 'package:expresto/data/mock/emergency_mock_data.dart';
 import 'package:expresto/models/emergency_session_data.dart';
 import 'package:expresto/pages/bystander.dart';
 import 'package:expresto/pages/silent_emergency.dart';
+import 'package:expresto/widgets/signkit_avatar_pip.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
@@ -308,9 +309,9 @@ class _CameraPanel extends StatelessWidget {
             ),
           ),
           const Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.topRight,
             child: Padding(
-              padding: EdgeInsets.only(right: 12),
+              padding: EdgeInsets.only(top: 12, right: 12),
               child: _AvatarPreview(),
             ),
           ),
@@ -391,8 +392,8 @@ class _AvatarPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 84,
-      height: 84,
+      width: 150,
+      height: 150,
       decoration: BoxDecoration(
         color: const Color(0xFF1D1D28).withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(18),
@@ -406,10 +407,9 @@ class _AvatarPreview extends StatelessWidget {
         ],
       ),
       child: const Center(
-        child: Icon(
-          Icons.interpreter_mode_rounded,
-          color: AppColors.textPrimary,
-          size: 34,
+        child: SignKitAvatarPiP(
+          assetPath: 'assets/avatars/signkit_ybot.png',
+          predictedSign: 'STABILIZING',
         ),
       ),
     );

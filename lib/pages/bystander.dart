@@ -2,6 +2,7 @@ import 'package:expresto/core/theme/app_colors.dart';
 import 'package:expresto/data/mock/bystander_mock_data.dart';
 import 'package:expresto/models/bystander_data.dart';
 import 'package:expresto/widgets/camera_preview_widget.dart';
+import 'package:expresto/widgets/signkit_avatar_pip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -342,10 +343,9 @@ class _BystanderAvatarPiP extends StatelessWidget {
         border: Border.all(color: const Color(0xFF1F62A8), width: 2),
       ),
       child: const Center(
-        child: Icon(
-          Icons.interpreter_mode_rounded,
-          color: AppColors.textPrimary,
-          size: 34,
+        child: SignKitAvatarPiP(
+          assetPath: 'assets/avatars/signkit_xbot.png',
+          predictedSign: 'LISTENING',
         ),
       ),
     );
