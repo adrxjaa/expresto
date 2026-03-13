@@ -64,10 +64,12 @@ class CalibrationPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                '🎯 ',
-                style: TextStyle(fontSize: 24),
+              const Icon(
+                Icons.track_changes,
+                color: AppColors.textPrimary,
+                size: 22,
               ),
+              const SizedBox(width: 8),
               const Text(
                 'Calibration',
                 style: TextStyle(
@@ -106,7 +108,10 @@ class CalibrationPage extends StatelessWidget {
               ),
               Text(
                 data.progressText,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
@@ -146,7 +151,11 @@ class CalibrationPage extends StatelessWidget {
       ),
       child: Text(
         data.instructionText,
-        style: const TextStyle(color: AppColors.textMuted, fontSize: 14, height: 1.4),
+        style: const TextStyle(
+          color: AppColors.textMuted,
+          fontSize: 14,
+          height: 1.4,
+        ),
       ),
     );
   }
@@ -202,7 +211,11 @@ class CalibrationPage extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Text(data.detectionStatusIcon, style: const TextStyle(fontSize: 16)),
+              Icon(
+                data.detectionStatusIcon,
+                color: AppColors.success,
+                size: 16,
+              ),
               const SizedBox(width: 8),
               Text(
                 data.detectionStatusText,
@@ -224,7 +237,7 @@ class CalibrationPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(data.audioStateIcon, style: const TextStyle(fontSize: 24)),
+          Icon(data.audioStateIcon, color: AppColors.warning, size: 24),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,7 +253,9 @@ class CalibrationPage extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: data.audioBars.map((height) => _buildAudioBar(height)).toList(),
+                children: data.audioBars
+                    .map((height) => _buildAudioBar(height))
+                    .toList(),
               ),
             ],
           ),
@@ -285,14 +300,24 @@ class CalibrationPage extends StatelessWidget {
           ...data.detectedChanges.asMap().entries.map((entry) {
             final change = entry.value;
             final isLast = entry.key == data.detectedChanges.length - 1;
-            return _buildChangeRow(change.label, change.value, change.valueColor, isLast: isLast);
+            return _buildChangeRow(
+              change.label,
+              change.value,
+              change.valueColor,
+              isLast: isLast,
+            );
           }),
         ],
       ),
     );
   }
 
-  Widget _buildChangeRow(String label, String value, Color valueColor, {bool isLast = false}) {
+  Widget _buildChangeRow(
+    String label,
+    String value,
+    Color valueColor, {
+    bool isLast = false,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 12.0),
       child: Row(

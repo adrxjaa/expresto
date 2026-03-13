@@ -18,15 +18,15 @@ class CalibrationData {
   final double progress;
   final String progressText;
   final String instructionText;
-  
-  final String audioStateIcon;
+
+  final IconData audioStateIcon;
   final String audioStateText;
   final List<double> audioBars;
 
   final String signPromptLabel;
   final String signWord;
 
-  final String detectionStatusIcon;
+  final IconData detectionStatusIcon;
   final String detectionStatusText;
 
   final String changesCardTitle;

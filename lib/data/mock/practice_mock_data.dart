@@ -1,5 +1,6 @@
 import 'package:expresto/core/theme/app_colors.dart';
 import 'package:expresto/models/practice_data.dart';
+import 'package:flutter/material.dart';
 
 final PracticeDashboardData practiceMockData = PracticeDashboardData(
   overallProgress: 73,
@@ -9,7 +10,7 @@ final PracticeDashboardData practiceMockData = PracticeDashboardData(
   averageAccuracy: 89,
   categories: [
     const PracticeCategory(
-      icon: '🚨',
+      icon: Icons.warning_amber_rounded,
       title: 'Emergency Signs',
       subtitle: '18/20 learned',
       progress: 0.9,
@@ -17,7 +18,7 @@ final PracticeDashboardData practiceMockData = PracticeDashboardData(
       routeKey: 'lesson',
     ),
     const PracticeCategory(
-      icon: '🏥',
+      icon: Icons.local_hospital_outlined,
       title: 'Medical Vocabulary',
       subtitle: '12/25 learned',
       progress: 0.48,
@@ -25,7 +26,7 @@ final PracticeDashboardData practiceMockData = PracticeDashboardData(
       routeKey: 'medical',
     ),
     const PracticeCategory(
-      icon: '🔥',
+      icon: Icons.local_fire_department,
       title: 'Fire & Safety',
       subtitle: '8/15 learned',
       progress: 0.53,
@@ -33,7 +34,7 @@ final PracticeDashboardData practiceMockData = PracticeDashboardData(
       routeKey: 'fire',
     ),
     PracticeCategory(
-      icon: '🎯',
+      icon: Icons.track_changes,
       title: 'Personal Calibration',
       subtitle: 'Accuracy: 92% — Re-calibrate?',
       progress: 0.92,

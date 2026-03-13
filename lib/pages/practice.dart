@@ -25,13 +25,12 @@ class PracticePage extends StatelessWidget {
                 children: [
                   _buildOverallProgress(data),
                   const SizedBox(height: 16),
-                  ...data.categories.map((category) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildCategoryCard(
-                          context,
-                          category: category,
-                        ),
-                      )),
+                  ...data.categories.map(
+                    (category) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildCategoryCard(context, category: category),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                 ],
               ),
@@ -48,13 +47,15 @@ class PracticePage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Row(
+          Row(
             children: [
-              Text(
-                '🎓 ',
-                style: TextStyle(fontSize: 24),
+              const Icon(
+                Icons.school_outlined,
+                color: AppColors.textPrimary,
+                size: 22,
               ),
-              Text(
+              const SizedBox(width: 8),
+              const Text(
                 'Practice',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -143,17 +144,17 @@ class PracticePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '🔥 ${data.currentStreak} day streak',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              _buildStatItem(
+                Icons.local_fire_department,
+                '${data.currentStreak} day streak',
               ),
-              Text(
-                '📖 ${data.signsLearned}/${data.totalSigns} signs',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              _buildStatItem(
+                Icons.menu_book_outlined,
+                '${data.signsLearned}/${data.totalSigns} signs',
               ),
-              Text(
-                '⭐ ${data.averageAccuracy}% avg',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              _buildStatItem(
+                Icons.star_outline,
+                '${data.averageAccuracy}% avg',
               ),
             ],
           ),
@@ -192,9 +193,7 @@ class PracticePage extends StatelessWidget {
         } else if (category.routeKey == 'calibration') {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const CalibrationPage(),
-            ),
+            MaterialPageRoute(builder: (context) => const CalibrationPage()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -210,7 +209,9 @@ class PracticePage extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.panel,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: category.borderColor ?? AppColors.shellBorder),
+          border: Border.all(
+            color: category.borderColor ?? AppColors.shellBorder,
+          ),
         ),
         child: Row(
           children: [
@@ -222,9 +223,10 @@ class PracticePage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               alignment: Alignment.center,
-              child: Text(
+              child: Icon(
                 category.icon,
-                style: const TextStyle(fontSize: 24),
+                size: 24,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(width: 16),
@@ -278,6 +280,19 @@ class PracticePage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.textMuted, size: 14),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+        ),
+      ],
     );
   }
 }

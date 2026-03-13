@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class EmergencyContact {
-  final String icon;
+  final IconData icon;
   final String name;
   final String phone;
   final Color iconBgColor;
@@ -19,7 +19,7 @@ class SettingsData {
   final String userSubtitle;
   final int profileAccuracy;
   final String lastCalibrated;
-  
+
   final List<EmergencyContact> emergencyContacts;
 
   final double emergencyThreshold;

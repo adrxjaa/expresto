@@ -17,18 +17,18 @@ class _SettingsPageState extends State<SettingsPage> {
   bool marketingEnabled = false;
   double thresholdValue = 0.65;
 
-  late String userName;
-  late String userSubtitle;
-  late int profileAccuracy;
-  late String lastCalibrated;
-  late List<EmergencyContact> emergencyContacts;
-  late String panicSensitivity;
-  late String signLanguage;
-  late String signLanguageSubtitle;
-  late String signLanguageCode;
-  late String region;
-  late String regionSubtitle;
-  late String regionCode;
+  String userName = 'User';
+  String userSubtitle = '';
+  int profileAccuracy = 0;
+  String lastCalibrated = '';
+  List<EmergencyContact> emergencyContacts = [];
+  String panicSensitivity = 'Medium';
+  String signLanguage = 'Sign Language';
+  String signLanguageSubtitle = 'Indian Sign Language';
+  String signLanguageCode = 'ISL';
+  String region = 'Region';
+  String regionSubtitle = 'Emergency: 100 (India)';
+  String regionCode = 'IN';
 
   @override
   void initState() {
@@ -87,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   _buildSectionHeader('PROFILE'),
                   _buildProfileCard(data),
                   const SizedBox(height: 24),
-                  
+
                   _buildSectionHeader('EMERGENCY CONTACTS'),
                   _buildEmergencyContactsCard(data),
                   const SizedBox(height: 24),
@@ -121,10 +121,24 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Row(
+          Row(
             children: [
-              Text('⚙️ ', style: TextStyle(fontSize: 24)),
-              Text(
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: AppColors.panel,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.shellBorder),
+                ),
+                child: const Icon(
+                  Icons.settings_outlined,
+                  color: AppColors.textPrimary,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
                 'Settings',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -181,7 +195,7 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         children: [
           _buildListTile(
-            icon: '👤',
+            icon: Icons.person_outline,
             iconBg: AppColors.blue.withValues(alpha: 0.15),
             title: data.userName,
             subtitle: data.userSubtitle,
@@ -190,7 +204,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Divider(color: AppColors.shellBorder, height: 1),
           _buildListTile(
-            icon: '🎯',
+            icon: Icons.track_changes,
             iconBg: AppColors.success.withValues(alpha: 0.15),
             title: 'Profile Accuracy',
             subtitle: data.lastCalibrated,
@@ -208,7 +222,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: AppColors.success.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(100),
               ),
-              child: Text('${data.profileAccuracy}%', style: const TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w600)),
+              child: Text(
+                '${data.profileAccuracy}%',
+                style: const TextStyle(
+                  color: AppColors.success,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ],
@@ -217,6 +238,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildEmergencyContactsCard(SettingsData data) {
+    final contacts = data.emergencyContacts;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panel,
@@ -225,20 +248,31 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       child: Column(
         children: [
-          ...data.emergencyContacts.map((contact) {
-            return Column(
-              children: [
-                _buildListTile(
-                  icon: contact.icon,
-                  iconBg: contact.iconBgColor,
-                  title: contact.name,
-                  subtitle: contact.phone,
-                  trailingText: '>',
-                ),
-                Divider(color: AppColors.shellBorder, height: 1),
-              ],
-            );
-          }),
+          if (contacts.isNotEmpty)
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 260),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: contacts.length,
+                physics: contacts.length > 3
+                    ? const ClampingScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
+                separatorBuilder: (context, index) =>
+                    Divider(color: AppColors.shellBorder, height: 1),
+                itemBuilder: (context, index) {
+                  final contact = contacts[index];
+                  return _buildListTile(
+                    icon: contact.icon,
+                    iconBg: contact.iconBgColor,
+                    title: contact.name,
+                    subtitle: contact.phone,
+                    trailingText: '>',
+                  );
+                },
+              ),
+            ),
+          if (contacts.isNotEmpty)
+            Divider(color: AppColors.shellBorder, height: 1),
           GestureDetector(
             onTap: _showAddContactSheet,
             behavior: HitTestBehavior.opaque,
@@ -256,7 +290,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     alignment: Alignment.center,
                     child: const Text(
                       '+ Add',
-                      style: TextStyle(color: AppColors.blue, fontSize: 10, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: AppColors.blue,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -294,7 +332,11 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 const Text(
                   'Emergency Threshold',
-                  style: TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 const Text(
@@ -304,7 +346,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Text('Low', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    const Text(
+                      'Low',
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 12,
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: SliderTheme(
@@ -313,8 +361,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           activeTrackColor: AppColors.emergency,
                           inactiveTrackColor: AppColors.shellBorder,
                           thumbColor: Colors.white,
-                          overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                          overlayShape: const RoundSliderOverlayShape(
+                            overlayRadius: 14,
+                          ),
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 7,
+                          ),
                         ),
                         child: Slider(
                           value: thresholdValue,
@@ -327,9 +379,22 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text('High', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    const Text(
+                      'High',
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 12,
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    Text('${(thresholdValue * 100 + 20).toInt()}%', style: const TextStyle(color: AppColors.textMuted, fontSize: 12, fontFamily: 'monospace')),
+                    Text(
+                      '${(thresholdValue * 100 + 20).toInt()}%',
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 12,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -337,7 +402,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Divider(color: AppColors.shellBorder, height: 1),
           _buildListTile(
-            icon: '⚡',
+            icon: Icons.bolt_outlined,
             iconBg: AppColors.warning.withValues(alpha: 0.15),
             title: 'Panic Sensitivity',
             subtitle: '',
@@ -348,7 +413,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: AppColors.warning.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(100),
               ),
-              child: Text(data.panicSensitivity, style: const TextStyle(color: AppColors.warning, fontSize: 12, fontWeight: FontWeight.w600)),
+              child: Text(
+                data.panicSensitivity,
+                style: const TextStyle(
+                  color: AppColors.warning,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ],
@@ -365,11 +437,29 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       child: Column(
         children: [
-          _buildSwitchTile('🚨', AppColors.emergency.withValues(alpha: 0.15), 'Emergency alerts', alertsEnabled, (val) => setState(() => alertsEnabled = val)),
+          _buildSwitchTile(
+            Icons.warning_amber_rounded,
+            AppColors.emergency.withValues(alpha: 0.15),
+            'Emergency alerts',
+            alertsEnabled,
+            (val) => setState(() => alertsEnabled = val),
+          ),
           Divider(color: AppColors.shellBorder, height: 1),
-          _buildSwitchTile('🎓', AppColors.blue.withValues(alpha: 0.15), 'Practice reminders', practiceHintsEnabled, (val) => setState(() => practiceHintsEnabled = val)),
+          _buildSwitchTile(
+            Icons.school_outlined,
+            AppColors.blue.withValues(alpha: 0.15),
+            'Practice reminders',
+            practiceHintsEnabled,
+            (val) => setState(() => practiceHintsEnabled = val),
+          ),
           Divider(color: AppColors.shellBorder, height: 1),
-          _buildSwitchTile('📧', AppColors.shellBorder, 'Marketing emails', marketingEnabled, (val) => setState(() => marketingEnabled = val)),
+          _buildSwitchTile(
+            Icons.mail_outline_rounded,
+            AppColors.shellBorder,
+            'Marketing emails',
+            marketingEnabled,
+            (val) => setState(() => marketingEnabled = val),
+          ),
         ],
       ),
     );
@@ -385,7 +475,7 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         children: [
           _buildListTile(
-            icon: '🤟',
+            icon: Icons.sign_language_outlined,
             iconBg: AppColors.blue.withValues(alpha: 0.15),
             title: data.signLanguage,
             subtitle: data.signLanguageSubtitle,
@@ -394,7 +484,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Divider(color: AppColors.shellBorder, height: 1),
           _buildListTile(
-            icon: '🌍',
+            icon: Icons.public_outlined,
             iconBg: AppColors.success.withValues(alpha: 0.15),
             title: data.region,
             subtitle: data.regionSubtitle,
@@ -409,13 +499,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildBottomButtons() {
     return Row(
       children: [
-        Expanded(
-          child: _buildOutlineBtn('Privacy'),
-        ),
+        Expanded(child: _buildOutlineBtn('Privacy')),
         const SizedBox(width: 12),
-        Expanded(
-          child: _buildOutlineBtn('Log Out'),
-        ),
+        Expanded(child: _buildOutlineBtn('Log Out')),
       ],
     );
   }
@@ -444,7 +530,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildListTile({
-    required String icon,
+    required IconData icon,
     required Color iconBg,
     required String title,
     required String subtitle,
@@ -458,40 +544,66 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(10),
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, color: AppColors.textPrimary, size: 20),
             ),
-            alignment: Alignment.center,
-            child: Text(icon, style: const TextStyle(fontSize: 18)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
-                if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
-                ]
-              ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-          if (trailingWidget != null) trailingWidget
-          else if (trailingText != null)
-            Text(trailingText, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
-        ],
-      ),
+            if (trailingWidget != null)
+              trailingWidget
+            else if (trailingText != null)
+              Text(
+                trailingText,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSwitchTile(String icon, Color iconBg, String title, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildSwitchTile(
+    IconData icon,
+    Color iconBg,
+    String title,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -504,11 +616,18 @@ class _SettingsPageState extends State<SettingsPage> {
               borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
-            child: Text(icon, style: const TextStyle(fontSize: 18)),
+            child: Icon(icon, color: AppColors.textPrimary, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           Switch(
             value: value,
@@ -532,8 +651,13 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.panel,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Edit Profile', style: TextStyle(color: AppColors.textPrimary)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Edit Profile',
+            style: TextStyle(color: AppColors.textPrimary),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -543,8 +667,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 decoration: const InputDecoration(
                   labelText: 'Name',
                   labelStyle: TextStyle(color: AppColors.textMuted),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.shellBorder)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.blue)),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.shellBorder),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.blue),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -554,8 +682,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 decoration: const InputDecoration(
                   labelText: 'Subtitle',
                   labelStyle: TextStyle(color: AppColors.textMuted),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.shellBorder)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.blue)),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.shellBorder),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.blue),
+                  ),
                 ),
               ),
             ],
@@ -563,7 +695,10 @@ class _SettingsPageState extends State<SettingsPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.textMuted),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -573,7 +708,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
                 Navigator.pop(context);
               },
-              child: const Text('Save', style: TextStyle(color: AppColors.blue, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Save',
+                style: TextStyle(
+                  color: AppColors.blue,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         );
@@ -603,7 +744,14 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Add Emergency Contact', style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700)),
+              const Text(
+                'Add Emergency Contact',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
@@ -611,8 +759,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 decoration: const InputDecoration(
                   labelText: 'Name',
                   labelStyle: TextStyle(color: AppColors.textMuted),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.shellBorder)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.blue)),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.shellBorder),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.blue),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -623,8 +775,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 decoration: const InputDecoration(
                   labelText: 'Phone Number',
                   labelStyle: TextStyle(color: AppColors.textMuted),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.shellBorder)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.blue)),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.shellBorder),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.blue),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -634,22 +790,35 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.blue,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () {
-                    if (nameController.text.isNotEmpty && phoneController.text.isNotEmpty) {
+                    if (nameController.text.isNotEmpty &&
+                        phoneController.text.isNotEmpty) {
                       setState(() {
-                        emergencyContacts.add(EmergencyContact(
-                          icon: '📞',
-                          name: nameController.text,
-                          phone: phoneController.text,
-                          iconBgColor: AppColors.success.withValues(alpha: 0.15),
-                        ));
+                        emergencyContacts.add(
+                          EmergencyContact(
+                            icon: Icons.contact_phone_outlined,
+                            name: nameController.text,
+                            phone: phoneController.text,
+                            iconBgColor: AppColors.success.withValues(
+                              alpha: 0.15,
+                            ),
+                          ),
+                        );
                       });
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text('Save Contact', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Save Contact',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -666,14 +835,24 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.panel,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Panic Sensitivity', style: TextStyle(color: AppColors.textPrimary)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Panic Sensitivity',
+            style: TextStyle(color: AppColors.textPrimary),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: ['Low', 'Medium', 'High'].map((level) {
               return ListTile(
-                title: Text(level, style: const TextStyle(color: AppColors.textPrimary)),
-                trailing: panicSensitivity == level ? const Icon(Icons.check, color: AppColors.warning) : null,
+                title: Text(
+                  level,
+                  style: const TextStyle(color: AppColors.textPrimary),
+                ),
+                trailing: panicSensitivity == level
+                    ? const Icon(Icons.check, color: AppColors.warning)
+                    : null,
                 onTap: () {
                   setState(() => panicSensitivity = level);
                   Navigator.pop(context);
@@ -696,14 +875,18 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         final options = isLanguage
             ? [
-                {'title': 'Sign Language (ASL)', 'subtitle': 'American Sign Language', 'code': 'ASL'},
-                {'title': 'Sign Language (BSL)', 'subtitle': 'British Sign Language', 'code': 'BSL'},
-                {'title': 'Sign Language (ISL)', 'subtitle': 'Indian Sign Language', 'code': 'ISL'},
+                {
+                  'title': 'Sign Language (ISL)',
+                  'subtitle': 'Indian Sign Language',
+                  'code': 'ISL',
+                },
               ]
             : [
-                {'title': 'Region', 'subtitle': 'Emergency: 911 (USA)', 'code': 'US'},
-                {'title': 'Region', 'subtitle': 'Emergency: 999 (UK)', 'code': 'UK'},
-                {'title': 'Region', 'subtitle': 'Emergency: 100 (India)', 'code': 'IN'},
+                {
+                  'title': 'Region',
+                  'subtitle': 'Emergency: 100 (India)',
+                  'code': 'IN',
+                },
               ];
 
         return Padding(
@@ -713,7 +896,11 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               Text(
                 isLanguage ? 'Select Language' : 'Select Region',
-                style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 16),
               ...options.map((opt) {
@@ -721,8 +908,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 final isSelected = currentCode == opt['code'];
 
                 return ListTile(
-                  title: Text(opt['subtitle']!, style: const TextStyle(color: AppColors.textPrimary)),
-                  trailing: isSelected ? const Icon(Icons.check, color: AppColors.success) : null,
+                  title: Text(
+                    opt['subtitle']!,
+                    style: const TextStyle(color: AppColors.textPrimary),
+                  ),
+                  trailing: isSelected
+                      ? const Icon(Icons.check, color: AppColors.success)
+                      : null,
                   onTap: () {
                     setState(() {
                       if (isLanguage) {

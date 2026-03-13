@@ -1,4 +1,5 @@
 import 'package:expresto/models/lesson_data.dart';
+import 'package:flutter/material.dart';
 
 final LessonData lessonMockDataHELP = LessonData(
   title: 'Emergency Signs -\nLesson 3',
@@ -6,7 +7,7 @@ final LessonData lessonMockDataHELP = LessonData(
   currentStep: 3,
   totalSteps: 20,
   progress: 0.15,
-  emojiDemonstration: '🙋',
+  emojiDemonstration: Icons.waving_hand,
   keyPoints: [
     'Raise both hands to shoulder height',
     'Palms facing forward',
@@ -14,9 +15,15 @@ final LessonData lessonMockDataHELP = LessonData(
     'Urgent facial expression',
   ],
   feedback: [
-    const LessonFeedback(icon: '🟢', text: 'Good hand position!'),
-    const LessonFeedback(icon: '⚠️', text: 'Raise hands a bit higher'),
-    const LessonFeedback(icon: '✅', text: 'Facial expression: Perfect!'),
+    const LessonFeedback(icon: Icons.check_circle, text: 'Good hand position!'),
+    const LessonFeedback(
+      icon: Icons.warning_amber_rounded,
+      text: 'Raise hands a bit higher',
+    ),
+    const LessonFeedback(
+      icon: Icons.task_alt,
+      text: 'Facial expression: Perfect!',
+    ),
   ],
   confidenceScore: 87,
   attemptNumber: 2,
@@ -29,7 +36,7 @@ final LessonData lessonMockDataWATER = LessonData(
   currentStep: 4,
   totalSteps: 20,
   progress: 0.20,
-  emojiDemonstration: '🚰',
+  emojiDemonstration: Icons.water_drop_outlined,
   keyPoints: [
     'Form a "W" with your index, middle, and ring fingers',
     'Tap the index finger against your chin twice',
@@ -37,8 +44,11 @@ final LessonData lessonMockDataWATER = LessonData(
     'Maintain eye contact',
   ],
   feedback: [
-    const LessonFeedback(icon: '🟢', text: 'Good "W" shape!'),
-    const LessonFeedback(icon: '✅', text: 'Contact point is correct!'),
+    const LessonFeedback(icon: Icons.check_circle, text: 'Good "W" shape!'),
+    const LessonFeedback(
+      icon: Icons.task_alt,
+      text: 'Contact point is correct!',
+    ),
   ],
   confidenceScore: 92,
   attemptNumber: 1,
@@ -51,15 +61,18 @@ final LessonData lessonMockDataAMBULANCE = LessonData(
   currentStep: 1,
   totalSteps: 25,
   progress: 0.04,
-  emojiDemonstration: '🚑',
+  emojiDemonstration: Icons.emergency,
   keyPoints: [
     'Raise one hand above your head',
     'Rotate wrist like a siren',
     'Urgent facial expression',
   ],
   feedback: [
-    const LessonFeedback(icon: '⚠️', text: 'Make the rotation more circular'),
-    const LessonFeedback(icon: '✅', text: 'Good height!'),
+    const LessonFeedback(
+      icon: Icons.warning_amber_rounded,
+      text: 'Make the rotation more circular',
+    ),
+    const LessonFeedback(icon: Icons.task_alt, text: 'Good height!'),
   ],
   confidenceScore: 78,
   attemptNumber: 2,
@@ -72,16 +85,25 @@ final LessonData lessonMockDataFIRE = LessonData(
   currentStep: 2,
   totalSteps: 15,
   progress: 0.13,
-  emojiDemonstration: '🔥',
+  emojiDemonstration: Icons.local_fire_department,
   keyPoints: [
     'Wiggle fingers pointing upwards',
     'Move hands up and down alternating',
     'Express urgency',
   ],
   feedback: [
-    const LessonFeedback(icon: '🟢', text: 'Good finger wiggling!'),
-    const LessonFeedback(icon: '✅', text: 'Great alternating motion!'),
-    const LessonFeedback(icon: '⚠️', text: 'Show more urgency in face'),
+    const LessonFeedback(
+      icon: Icons.check_circle,
+      text: 'Good finger wiggling!',
+    ),
+    const LessonFeedback(
+      icon: Icons.task_alt,
+      text: 'Great alternating motion!',
+    ),
+    const LessonFeedback(
+      icon: Icons.warning_amber_rounded,
+      text: 'Show more urgency in face',
+    ),
   ],
   confidenceScore: 85,
   attemptNumber: 1,

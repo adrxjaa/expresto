@@ -97,7 +97,11 @@ class _SilentHeader extends StatelessWidget {
         Expanded(
           child: Row(
             children: [
-              const Text('🚫', style: TextStyle(fontSize: 18)),
+              const Icon(
+                Icons.do_not_disturb_alt,
+                color: AppColors.textPrimary,
+                size: 18,
+              ),
               const SizedBox(width: 8),
               Text(
                 data.title,

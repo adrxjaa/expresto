@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PracticeCategory {
-  final String icon;
+  final IconData icon;
   final String title;
   final String subtitle;
   final double progress;

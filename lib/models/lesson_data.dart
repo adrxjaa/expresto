@@ -1,11 +1,10 @@
+import 'package:flutter/material.dart';
+
 class LessonFeedback {
-  final String icon;
+  final IconData icon;
   final String text;
 
-  const LessonFeedback({
-    required this.icon,
-    required this.text,
-  });
+  const LessonFeedback({required this.icon, required this.text});
 }
 
 class LessonData {
@@ -14,7 +13,7 @@ class LessonData {
   final int currentStep;
   final int totalSteps;
   final double progress;
-  final String emojiDemonstration;
+  final IconData emojiDemonstration;
   final List<String> keyPoints;
   final List<LessonFeedback> feedback;
   final int confidenceScore;

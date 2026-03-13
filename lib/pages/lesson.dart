@@ -88,11 +88,17 @@ class LessonPage extends StatelessWidget {
             children: [
               Text(
                 'Sign: ${data.signWord}',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                ),
               ),
               Text(
                 '${data.currentStep} / ${data.totalSteps}',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
@@ -140,7 +146,7 @@ class LessonPage extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(data.emojiDemonstration, style: const TextStyle(fontSize: 64)),
+              Icon(data.emojiDemonstration, size: 64, color: AppColors.blue),
               const SizedBox(height: 8),
               Text(
                 data.signWord,
@@ -158,11 +164,11 @@ class LessonPage extends StatelessWidget {
             bottom: 16,
             child: Row(
               children: [
-                _buildDemoBtn('▶', 'Replay'),
+                _buildDemoBtn(Icons.replay, 'Replay'),
                 const SizedBox(width: 8),
-                _buildDemoBtn('⏸', 'Pause'),
+                _buildDemoBtn(Icons.pause, 'Pause'),
                 const SizedBox(width: 8),
-                _buildDemoBtn('🔁', 'Loop'),
+                _buildDemoBtn(Icons.repeat, 'Loop'),
               ],
             ),
           ),
@@ -171,7 +177,7 @@ class LessonPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDemoBtn(String icon, String label) {
+  Widget _buildDemoBtn(IconData icon, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -180,9 +186,12 @@ class LessonPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+          Icon(icon, color: AppColors.textMuted, size: 12),
           const SizedBox(width: 4),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -220,7 +229,7 @@ class LessonPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
         children: [
-          const Text('●', style: TextStyle(color: AppColors.blue, fontSize: 10)),
+          const Icon(Icons.circle, color: AppColors.blue, size: 8),
           const SizedBox(width: 8),
           Text(
             text,
@@ -244,7 +253,11 @@ class LessonPage extends StatelessWidget {
         children: [
           Row(
             children: const [
-              Text('✋', style: TextStyle(fontSize: 16)),
+              Icon(
+                Icons.front_hand_outlined,
+                color: AppColors.textPrimary,
+                size: 16,
+              ),
               SizedBox(width: 8),
               Text(
                 'YOUR TURN',
@@ -257,10 +270,7 @@ class LessonPage extends StatelessWidget {
               ),
             ],
           ),
-          const CameraPreviewWidget(
-            height: 180,
-            fallbackText: 'YOUR TURN',
-          ),
+          const CameraPreviewWidget(height: 180, fallbackText: 'YOUR TURN'),
           const SizedBox(height: 12),
           ...data.feedback.map((f) => _buildFeedbackRow(f.icon, f.text)),
           const SizedBox(height: 16),
@@ -293,7 +303,10 @@ class LessonPage extends StatelessWidget {
               ),
               Text(
                 'Attempt ${data.attemptNumber}/${data.totalAttempts}',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
@@ -333,7 +346,7 @@ class LessonPage extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: const Text(
-                      'Next Sign →',
+                      'Next Sign',
                       style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
@@ -350,12 +363,12 @@ class LessonPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFeedbackRow(String icon, String text) {
+  Widget _buildFeedbackRow(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 14)),
+          Icon(icon, size: 14, color: AppColors.textPrimary),
           const SizedBox(width: 8),
           Text(
             text,
