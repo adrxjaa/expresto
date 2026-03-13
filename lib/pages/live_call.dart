@@ -537,8 +537,8 @@ class _AvatarPiP extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 78,
-      height: 78,
+      width: 150,
+      height: 150,
       decoration: BoxDecoration(
         color: const Color(0xFF1D1D28).withValues(alpha: 0.94),
         borderRadius: BorderRadius.circular(16),

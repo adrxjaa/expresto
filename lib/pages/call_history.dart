@@ -1,6 +1,7 @@
 import 'package:expresto/core/theme/app_colors.dart';
 import 'package:expresto/data/mock/call_history_mock_data.dart';
 import 'package:expresto/models/call_history_data.dart';
+import 'package:expresto/pages/view_transcript.dart';
 import 'package:flutter/material.dart';
 
 class CallHistoryPage extends StatefulWidget {
@@ -236,6 +237,17 @@ class _HistoryCard extends StatelessWidget {
                 .map(
                   (label) => OutlinedButton(
                     onPressed: () {
+                      if (label == 'View Transcript') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ViewTranscriptPage(entry: entry),
+                          ),
+                        );
+                        return;
+                      }
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('$label coming next.'),

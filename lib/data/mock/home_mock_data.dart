@@ -3,8 +3,8 @@ import 'package:expresto/models/home_dashboard_data.dart';
 import 'package:flutter/material.dart';
 
 const HomeDashboardData homeMockData = HomeDashboardData(
-  appTitle: 'SIGNBRIDGE',
-  userName: 'Sabari',
+  appTitle: 'EXPRESTO',
+  userName: 'Adrija',
   profileStatus: 'Profile 92% calibrated - ready',
   profileStatusColor: AppColors.success,
   profileStatusBackground: AppColors.successBg,

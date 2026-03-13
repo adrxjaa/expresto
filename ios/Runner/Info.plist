@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>SignBridge uses the camera to capture live signing during emergency calls.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Expresto uses your microphone to visualize live audio levels during calibration.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

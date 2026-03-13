@@ -1,6 +1,7 @@
 import 'package:expresto/core/theme/app_colors.dart';
 import 'package:expresto/data/mock/bystander_mock_data.dart';
 import 'package:expresto/models/bystander_data.dart';
+import 'package:expresto/widgets/camera_preview_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -58,34 +59,20 @@ class _BystanderPageState extends State<BystanderPage> {
                   onExit: () => Navigator.pop(context),
                 ),
                 const SizedBox(height: 16),
-                _AlertStrip(message: data.alertMessage),
+              
+                _BystanderCameraPanel(data: data, showAvatar: _showAvatar),
                 const SizedBox(height: 14),
-                _SummaryPanel(data: data),
-                const SizedBox(height: 14),
-                _InstructionsPanel(data: data),
-                const SizedBox(height: 14),
-                _QuickPhraseSection(
-                  data: data,
-                  onPhraseTap: (phrase) {
-                    _messageController.text = phrase.label;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Queued: ${phrase.label}'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                ),
+                _TranscriptPanel(data: data),
                 const SizedBox(height: 14),
                 _MessageComposer(
                   controller: _messageController,
-                  label: data.operatorLabel,
+                  label: 'SEND MESSAGE TO AVATAR',
                   hintText: data.inputHint,
                   onSend: () {
                     FocusScope.of(context).unfocus();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Update sent to operator.'),
+                        content: Text('Message sent to avatar.'),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
@@ -156,15 +143,15 @@ class _AlertStrip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A1A06),
+        color: const Color(0xFF0C2340),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF8A5810)),
+        border: Border.all(color: const Color(0xFF1C69B8)),
       ),
       child: Row(
         children: [
           const Icon(
-            Icons.warning_amber_rounded,
-            color: AppColors.warning,
+            Icons.info_outline_rounded,
+            color: AppColors.blue,
             size: 20,
           ),
           const SizedBox(width: 8),
@@ -172,7 +159,7 @@ class _AlertStrip extends StatelessWidget {
             child: Text(
               message,
               style: const TextStyle(
-                color: Color(0xFFFFB439),
+                color: Color(0xFF79BAFF),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -284,8 +271,89 @@ class _SummaryPanel extends StatelessWidget {
   }
 }
 
-class _InstructionsPanel extends StatelessWidget {
-  const _InstructionsPanel({required this.data});
+class _BystanderCameraPanel extends StatelessWidget {
+  const _BystanderCameraPanel({required this.data, required this.showAvatar});
+
+  final BystanderData data;
+  final bool showAvatar;
+
+  @override
+  Widget build(BuildContext context) {
+    return _Panel(
+      borderColor: const Color(0xFF1B5CA7),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.videocam_rounded, color: AppColors.blue, size: 18),
+              const SizedBox(width: 8),
+              const Text(
+                'LIVE CAMERA',
+                style: TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                  letterSpacing: 2.2,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Spacer(),
+              const Text(
+                'LIVE',
+                style: TextStyle(
+                  color: AppColors.blue,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          CameraPreviewWidget(
+            height: 400,
+            fallbackText: 'CAMERA ACTIVE — LIVE VIEW',
+            overlay: showAvatar
+                ? const Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 12, bottom: 12),
+                      child: _BystanderAvatarPiP(),
+                    ),
+                  )
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BystanderAvatarPiP extends StatelessWidget {
+  const _BystanderAvatarPiP();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 150,
+      height: 150,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1D1D28).withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF1F62A8), width: 2),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.interpreter_mode_rounded,
+          color: AppColors.textPrimary,
+          size: 34,
+        ),
+      ),
+    );
+  }
+}
+
+class _TranscriptPanel extends StatelessWidget {
+  const _TranscriptPanel({required this.data});
 
   final BystanderData data;
 
@@ -295,146 +363,52 @@ class _InstructionsPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            data.instructionsTitle,
-            style: const TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 12,
-              letterSpacing: 2.4,
-              fontWeight: FontWeight.w700,
-            ),
+          const Row(
+            children: [
+              Icon(
+                Icons.chat_bubble_rounded,
+                color: AppColors.textMuted,
+                size: 16,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'TRANSCRIPT',
+                style: TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                  letterSpacing: 2.4,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           ...List.generate(data.instructions.length, (index) {
-            final number = index + 1;
+            final isDeafMessage = index.isEven;
             return Padding(
               padding: const EdgeInsets.only(bottom: 14),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 18,
-                    child: Text(
-                      '$number',
-                      style: const TextStyle(
-                        color: AppColors.emergency,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isDeafMessage ? const Color(0xFF122A45) : const Color(0xFF161B26),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDeafMessage ? const Color(0xFF1C69B8) : AppColors.shellBorder,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      data.instructions[index],
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                ),
+                child: Text(
+                  data.instructions[index],
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
+                ),
               ),
             );
           }),
         ],
-      ),
-    );
-  }
-}
-
-class _QuickPhraseSection extends StatelessWidget {
-  const _QuickPhraseSection({required this.data, required this.onPhraseTap});
-
-  final BystanderData data;
-  final ValueChanged<BystanderQuickPhrase> onPhraseTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          data.quickPhrasesTitle,
-          style: const TextStyle(
-            color: AppColors.textMuted,
-            fontSize: 12,
-            letterSpacing: 2.6,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: data.quickPhrases
-              .map(
-                (phrase) => _QuickPhraseChip(
-                  phrase: phrase,
-                  onTap: () => onPhraseTap(phrase),
-                ),
-              )
-              .toList(),
-        ),
-      ],
-    );
-  }
-}
-
-class _QuickPhraseChip extends StatelessWidget {
-  const _QuickPhraseChip({required this.phrase, required this.onTap});
-
-  final BystanderQuickPhrase phrase;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final (borderColor, icon, iconColor) = switch (phrase.sentiment) {
-      QuickPhraseSentiment.positive => (
-        const Color(0xFF32493A),
-        Icons.check_box_rounded,
-        AppColors.success,
-      ),
-      QuickPhraseSentiment.warning => (
-        const Color(0xFF5A4620),
-        Icons.warning_rounded,
-        AppColors.warning,
-      ),
-      QuickPhraseSentiment.danger => (
-        const Color(0xFF5E2830),
-        Icons.notification_important_rounded,
-        AppColors.emergency,
-      ),
-    };
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.panelSoft,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: borderColor),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                phrase.label,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Icon(icon, color: iconColor, size: 16),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -13,6 +13,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool alertsEnabled = true;
+  bool emergencyLocationSharingEnabled = true;
   bool practiceHintsEnabled = true;
   bool marketingEnabled = false;
   double thresholdValue = 0.65;
@@ -88,16 +89,47 @@ class _SettingsPageState extends State<SettingsPage> {
                   _buildProfileCard(data),
                   const SizedBox(height: 24),
 
-                  _buildSectionHeader('EMERGENCY CONTACTS'),
-                  _buildEmergencyContactsCard(data),
-                  const SizedBox(height: 24),
-
                   _buildSectionHeader('PERSONALIZATION'),
                   _buildPersonalizationCard(data),
                   const SizedBox(height: 24),
 
                   _buildSectionHeader('NOTIFICATIONS'),
-                  _buildNotificationsCard(data),
+                  Container(
+      decoration: BoxDecoration(
+        color: AppColors.panel,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.shellBorder),
+      ),
+      child: Column(
+        children: [
+          _buildSwitchTile(
+            Icons.warning_amber_rounded,
+            AppColors.emergency.withValues(alpha: 0.15),
+            'Emergency alerts',
+            alertsEnabled,
+            (val) => setState(() => alertsEnabled = val),
+          ),
+          Divider(color: AppColors.shellBorder, height: 1),
+          _buildSwitchTile(
+            Icons.location_on_outlined,
+            AppColors.blue.withValues(alpha: 0.15),
+            'Emergency location sharing',
+            emergencyLocationSharingEnabled,
+            (val) => setState(() => emergencyLocationSharingEnabled = val),
+          ),
+          Divider(color: AppColors.shellBorder, height: 1),
+          _buildSwitchTile(
+            Icons.school_outlined,
+            AppColors.blue.withValues(alpha: 0.15),
+            'Practice reminders',
+            practiceHintsEnabled,
+            (val) => setState(() => practiceHintsEnabled = val),
+          ),
+          Divider(color: AppColors.shellBorder, height: 1),
+          
+        ],
+      ),
+    ),
                   const SizedBox(height: 24),
 
                   _buildSectionHeader('LANGUAGE & REGION'),
@@ -443,6 +475,14 @@ class _SettingsPageState extends State<SettingsPage> {
             'Emergency alerts',
             alertsEnabled,
             (val) => setState(() => alertsEnabled = val),
+          ),
+          Divider(color: AppColors.shellBorder, height: 1),
+          _buildSwitchTile(
+            Icons.location_on_outlined,
+            AppColors.blue.withValues(alpha: 0.15),
+            'Emergency location sharing',
+            emergencyLocationSharingEnabled,
+            (val) => setState(() => emergencyLocationSharingEnabled = val),
           ),
           Divider(color: AppColors.shellBorder, height: 1),
           _buildSwitchTile(

@@ -23,8 +23,6 @@ class LessonPage extends StatelessWidget {
                 children: [
                   _buildDemonstration(data),
                   const SizedBox(height: 12),
-                  _buildKeyPoints(data),
-                  const SizedBox(height: 12),
                   _buildPracticeArea(data),
                   const SizedBox(height: 24),
                 ],
@@ -251,26 +249,31 @@ class LessonPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: const [
-              Icon(
-                Icons.front_hand_outlined,
-                color: AppColors.textPrimary,
-                size: 16,
-              ),
-              SizedBox(width: 8),
-              Text(
-                'YOUR TURN',
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Row(
+              children: const [
+                Icon(
+                  Icons.front_hand_outlined,
+                  color: AppColors.textPrimary,
+                  size: 16,
                 ),
-              ),
-            ],
+                SizedBox(width: 8),
+                Text(
+                  'YOUR TURN',
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const CameraPreviewWidget(height: 180, fallbackText: 'YOUR TURN'),
+          const CameraPreviewWidget(height: 270, fallbackText: 'YOUR TURN'),
+          const SizedBox(height: 12),
+          _buildKeyPoints(data),
           const SizedBox(height: 12),
           ...data.feedback.map((f) => _buildFeedbackRow(f.icon, f.text)),
           const SizedBox(height: 16),

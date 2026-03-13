@@ -250,7 +250,7 @@ class _HomePageState extends State<HomePage>
                   ],
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 28),
               GridView.builder(
                 itemCount: data.quickActions.length,
                 shrinkWrap: true,
