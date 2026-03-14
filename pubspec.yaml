@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   camera: ^0.12.0
   image_picker: ^1.1.2
+  webview_flutter: ^4.9.0
+  webview_flutter_android: ^4.10.1
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +63,14 @@ flutter:
 
   assets:
     - assets/avatars/
+    - assets/signkit/
+    - assets/signkit/vendor/
+    - assets/signkit/models/
+    - assets/signkit/models/xbot/
+    - assets/signkit/models/ybot/
+    - assets/signkit/animations/
+    - assets/signkit/animations/Alphabets/
+    - assets/signkit/animations/Words/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

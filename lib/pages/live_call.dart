@@ -19,10 +19,14 @@ class _LiveCallPageState extends State<LiveCallPage> {
   Future<void>? _cameraInitialization;
   String? _cameraError;
   late final Timer _callTimer;
+  Timer? _remoteSpeechTimer;
   Duration _elapsed = Duration.zero;
   bool _isMuted = true;
   bool _isVideoOff = true;
   bool _showLocalAsMain = false;
+  String _remoteDisplayedText = '';
+  String _avatarPhrase = 'READY';
+  int _remoteWordIndex = 0;
 
   @override
   void initState() {
@@ -32,6 +36,34 @@ class _LiveCallPageState extends State<LiveCallPage> {
       if (!mounted) return;
       setState(() {
         _elapsed += const Duration(seconds: 1);
+      });
+    });
+    _startRemoteSpeechStream();
+  }
+
+  void _startRemoteSpeechStream() {
+    const remoteMessage = "I'm feeling much better, thanks for checking!";
+    final words = remoteMessage.split(' ');
+
+    _remoteSpeechTimer?.cancel();
+    _remoteDisplayedText = '';
+    _avatarPhrase = 'READY';
+    _remoteWordIndex = 0;
+
+    _remoteSpeechTimer = Timer.periodic(const Duration(milliseconds: 900), (_) {
+      if (!mounted) return;
+      if (_remoteWordIndex >= words.length) {
+        _remoteSpeechTimer?.cancel();
+        return;
+      }
+
+      final nextWord = words[_remoteWordIndex];
+      setState(() {
+        _remoteDisplayedText = _remoteDisplayedText.isEmpty
+            ? nextWord
+            : '$_remoteDisplayedText $nextWord';
+        _avatarPhrase = nextWord.replaceAll(RegExp(r'[^A-Za-z]'), '');
+        _remoteWordIndex += 1;
       });
     });
   }
@@ -84,6 +116,7 @@ class _LiveCallPageState extends State<LiveCallPage> {
   @override
   void dispose() {
     _callTimer.cancel();
+    _remoteSpeechTimer?.cancel();
     _cameraController?.dispose();
     super.dispose();
   }
@@ -98,6 +131,20 @@ class _LiveCallPageState extends State<LiveCallPage> {
   Widget build(BuildContext context) {
     const data = liveCallMockData;
     final callTime = _formatDuration(_elapsed);
+    final displayedMessages = [
+      data.messages.first,
+      LiveCallMessage(
+        speaker: data.messages[1].speaker,
+        mode: data.messages[1].mode,
+        message: _remoteDisplayedText.isEmpty
+            ? 'Listening...'
+            : _remoteDisplayedText,
+        statusLabel: _remoteWordIndex >= 6
+            ? 'Avatar translating...'
+            : 'Receiving speech...',
+        statusColor: data.messages[1].statusColor,
+      ),
+    ];
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -128,6 +175,7 @@ class _LiveCallPageState extends State<LiveCallPage> {
                     error: _cameraError,
                     isVideoOff: _isVideoOff,
                     showLocalAsMain: _showLocalAsMain,
+                    avatarPhrase: _avatarPhrase,
                     onSwapFeeds: () {
                       setState(() {
                         _showLocalAsMain = !_showLocalAsMain;
@@ -136,7 +184,13 @@ class _LiveCallPageState extends State<LiveCallPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Expanded(flex: 1, child: _TranscriptPanel(data: data)),
+                Expanded(
+                  flex: 1,
+                  child: _TranscriptPanel(
+                    title: data.transcriptTitle,
+                    messages: displayedMessages,
+                  ),
+                ),
                 const SizedBox(height: 18),
                 Center(
                   child: Text(
@@ -277,6 +331,7 @@ class _CameraStage extends StatelessWidget {
     required this.error,
     required this.isVideoOff,
     required this.showLocalAsMain,
+    required this.avatarPhrase,
     required this.onSwapFeeds,
   });
 
@@ -286,6 +341,7 @@ class _CameraStage extends StatelessWidget {
   final String? error;
   final bool isVideoOff;
   final bool showLocalAsMain;
+  final String avatarPhrase;
   final VoidCallback onSwapFeeds;
 
   @override
@@ -387,11 +443,11 @@ class _CameraStage extends StatelessWidget {
               ),
             ),
           ),
-          const Align(
+          Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: EdgeInsets.only(right: 14, bottom: 14),
-              child: _AvatarPiP(),
+              padding: const EdgeInsets.only(right: 14, bottom: 14),
+              child: _AvatarPiP(predictedSign: avatarPhrase),
             ),
           ),
         ],
@@ -533,7 +589,9 @@ class _FeedOverlay extends StatelessWidget {
 }
 
 class _AvatarPiP extends StatelessWidget {
-  const _AvatarPiP();
+  const _AvatarPiP({required this.predictedSign});
+
+  final String predictedSign;
 
   @override
   Widget build(BuildContext context) {
@@ -545,10 +603,10 @@ class _AvatarPiP extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFF1F62A8), width: 2),
       ),
-      child: const Center(
+      child: Center(
         child: SignKitAvatarPiP(
           assetPath: 'assets/avatars/signkit_ybot.png',
-          predictedSign: 'READY',
+          predictedSign: predictedSign,
         ),
       ),
     );
@@ -625,9 +683,10 @@ class _LiveCameraStatus extends StatelessWidget {
 }
 
 class _TranscriptPanel extends StatelessWidget {
-  const _TranscriptPanel({required this.data});
+  const _TranscriptPanel({required this.title, required this.messages});
 
-  final LiveCallData data;
+  final String title;
+  final List<LiveCallMessage> messages;
 
   @override
   Widget build(BuildContext context) {
@@ -652,7 +711,7 @@ class _TranscriptPanel extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  data.transcriptTitle,
+                  title,
                   style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 12,
@@ -662,11 +721,11 @@ class _TranscriptPanel extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 14),
-            ...List.generate(data.messages.length, (index) {
-              final item = data.messages[index];
+            ...List.generate(messages.length, (index) {
+              final item = messages[index];
               return Padding(
                 padding: EdgeInsets.only(
-                  bottom: index == data.messages.length - 1 ? 0 : 16,
+                  bottom: index == messages.length - 1 ? 0 : 16,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
